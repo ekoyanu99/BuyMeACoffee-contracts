@@ -96,6 +96,41 @@ export default function Home() {
     }
   };
 
+  const buyLargeCoffee = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum, "any");
+        const signer = provider.getSigner();
+        const buyMeACoffee = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+
+        console.log("buying large coffee..")
+        const coffeeTxn = await buyMeACoffee.buyCoffee(
+          name ? name : "anon",
+          message ? message : "Enjoy your coffee!",
+          { value: ethers.utils.parseEther("0.003") }
+        );
+
+        await coffeeTxn.wait();
+
+        console.log("mined ", coffeeTxn.hash);
+
+        console.log("large coffee purchased!");
+
+        // Clear the form fields.
+        setName("");
+        setMessage("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Function to fetch all memos stored on-chain.
   const getMemos = async () => {
     try {
@@ -215,6 +250,14 @@ export default function Home() {
                   onClick={buyCoffee}
                 >
                   Send 1 Coffee for 0.001ETH
+                </button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={buyLargeCoffee}
+                >
+                  Send 1 Large Coffee for 0.003ETH
                 </button>
               </div>
             </form>
